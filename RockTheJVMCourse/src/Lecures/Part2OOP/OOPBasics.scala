@@ -1,22 +1,6 @@
-package Lecures.Part2OOP
+package Part2OOP
 
-object OOPBasics extends App {
 
-  val person = new Person("John", 26)
-/*
-  println(person.age) cannot be used to access person age
-  as age is a Class Parameter but not a Class member
-
-  NOTE: CLASS PARAMETERS ARE NOT FIELDS
-  Write val before Class Parameters inorder to convert them to Fields
-
- */
-  println(person.age) // age is now a Field since we added val
-  println(person.x) // x is a Field
-
-  person.greet("Daniel")
-  person.greet()
-}
 // constructor
 // {} braces are delimiter to Class's body which defines implementation of class. Within body it can have anything from val and var definitions, function definitions, expressions, etc...
 class Person(name: String, val age: Int = 0) {

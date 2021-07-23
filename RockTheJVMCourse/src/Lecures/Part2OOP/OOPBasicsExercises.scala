@@ -1,4 +1,4 @@
-package Lecures.Part2OOP
+package Part2OOP
 
 
 /*
