@@ -1,4 +1,4 @@
-package Lectures.Part1Basics
+package Part1Basics
 
 object ValuesVariablesTypes extends App {
   val x: Int = 42
