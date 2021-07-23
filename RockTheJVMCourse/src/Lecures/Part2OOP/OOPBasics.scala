@@ -1,5 +1,4 @@
-package Part2OOP
-
+package Lecures.Part2OOP
 
 // constructor
 // {} braces are delimiter to Class's body which defines implementation of class. Within body it can have anything from val and var definitions, function definitions, expressions, etc...

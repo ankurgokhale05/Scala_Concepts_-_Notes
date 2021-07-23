@@ -1,5 +1,4 @@
-package Part2OOP
-
+package Lecures.Part2OOP
 
 /*
 // Novel & Writer
