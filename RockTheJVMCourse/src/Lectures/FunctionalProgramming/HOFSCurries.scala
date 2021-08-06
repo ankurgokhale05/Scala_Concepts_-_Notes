@@ -1,0 +1,5 @@
+package FunctionalProgramming
+
+object HOFSCurries {
+
+}

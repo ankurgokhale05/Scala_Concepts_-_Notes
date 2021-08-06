@@ -51,7 +51,7 @@ abstract class MyListGenericwithAnonClasses[+A] {
 
 }
 
-object EmptyListwithAnonClasses extends MyListGenericwithAnonClasses[Nothing]{
+case object EmptyListwithAnonClasses extends MyListGenericwithAnonClasses[Nothing]{
   def head: Nothing = throw new NoSuchElementException// ??? Returns Nothing class in Scala ??? represented
   def tail: MyListGenericwithAnonClasses[Nothing] = throw new NoSuchElementException
   def isEmpty: Boolean = true
@@ -64,7 +64,7 @@ object EmptyListwithAnonClasses extends MyListGenericwithAnonClasses[Nothing]{
 }
 
 
-class ConstructorwithAnonClasses[+A](h: A, t: MyListGenericwithAnonClasses[A]) extends MyListGenericwithAnonClasses[A] {
+case class ConstructorwithAnonClasses[+A](h: A, t: MyListGenericwithAnonClasses[A]) extends MyListGenericwithAnonClasses[A] {
   def head: A = h  // ??? Returns Nothing class in Scala ??? represented
   def tail: MyListGenericwithAnonClasses[A] = t
   def isEmpty: Boolean = false
@@ -128,6 +128,7 @@ class ConstructorwithAnonClasses[+A](h: A, t: MyListGenericwithAnonClasses[A]) e
   }
 
 }
+
 trait MyPredicate[-T]{
   def test(elem: T): Boolean
 }
@@ -138,6 +139,7 @@ trait MyTransformer[-A, B] {
 
 object CheckListTestwithAnonClasses extends App {
   val listOfInt: MyListGenericwithAnonClasses[Int] = new ConstructorwithAnonClasses(1, new ConstructorwithAnonClasses(2, new ConstructorwithAnonClasses(3, EmptyListwithAnonClasses)))
+  val clonelistOfInt: MyListGenericwithAnonClasses[Int] = new ConstructorwithAnonClasses(1, new ConstructorwithAnonClasses(2, new ConstructorwithAnonClasses(3, EmptyListwithAnonClasses)))
   val anotherListOfInt: MyListGenericwithAnonClasses[Int] = new ConstructorwithAnonClasses[Int](4, new ConstructorwithAnonClasses(5, EmptyListwithAnonClasses))
 
   val listOfString: MyListGenericwithAnonClasses[String] = new ConstructorwithAnonClasses("Hello", new ConstructorwithAnonClasses("Scala", EmptyListwithAnonClasses))
@@ -160,6 +162,15 @@ object CheckListTestwithAnonClasses extends App {
   println(listOfInt.flatMap(new MyTransformer[Int, MyListGenericwithAnonClasses[Int]]{
     override def transform(elem: Int): MyListGenericwithAnonClasses[Int] = new ConstructorwithAnonClasses(elem, new ConstructorwithAnonClasses(elem + 1, EmptyListwithAnonClasses))
   }).toString)
+
+
+  println(clonelistOfInt == listOfInt) // This will return true as we have set case keyword before EmptyListwithAnonClasses and ConstructorwithAnonClasses. See CaseClasses.scala for more info
+  // This is because i have implemented equals and hashcode out of the box and list can be added to collections class
+  // Otherwise I had to write recursive functions for comparing each and every element in list
+
+
+
+
 
 
 }
