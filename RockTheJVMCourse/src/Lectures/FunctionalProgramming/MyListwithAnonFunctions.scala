@@ -23,6 +23,7 @@ package FunctionalProgramming
 
 
 import javax.sql.rowset.Predicate
+import scala.collection.View.Zip
 
 
 abstract class MyListGenericwithAnonFunctions[+A] {
@@ -49,6 +50,11 @@ abstract class MyListGenericwithAnonFunctions[+A] {
   def flatMap[B](myTransformer: A => MyListGenericwithAnonFunctions[B]): MyListGenericwithAnonFunctions[B]
   def filter(predicate: A => Boolean): MyListGenericwithAnonFunctions[A]
 
+  def foreach(f: A => Unit)
+  def sort(compare:(A, A) => Int): MyListGenericwithAnonFunctions[A] // This will return a negative value if first "A" is less than second "A"
+  def zipWith[B,C](list: MyListGenericwithAnonFunctions[B], zip:(A,B) => C): MyListGenericwithAnonFunctions[C]
+
+  def fold[B](start: B)(operator: (B,A) => B): B
   // Concatenation function
   def ++[B >: A](list: MyListGenericwithAnonFunctions[B]): MyListGenericwithAnonFunctions[B]
   override def toString: String = "[" + printElements + ']'
@@ -61,10 +67,23 @@ case object EmptyListwithAnonFunctions extends MyListGenericwithAnonFunctions[No
   def isEmpty: Boolean = true
   def add[B >: Nothing](element: B): MyListGenericwithAnonFunctions[B] = new ConstructorwithAnonFunctions(element, EmptyListwithAnonFunctions)
   def printElements: String = ""
+
+  def ++[B >: Nothing](list: MyListGenericwithAnonFunctions[B]): MyListGenericwithAnonFunctions[B] = list
+
+
+  //HOFS continues
   def map[B](transformer: Nothing => B) : MyListGenericwithAnonFunctions[B] = EmptyListwithAnonFunctions
   def flatMap[B](transformer: Nothing => MyListGenericwithAnonFunctions[B]): MyListGenericwithAnonFunctions[B] = EmptyListwithAnonFunctions
   def filter(predicate: Nothing => Boolean): MyListGenericwithAnonFunctions[Nothing] = EmptyListwithAnonFunctions
-  def ++[B >: Nothing](list: MyListGenericwithAnonFunctions[B]): MyListGenericwithAnonFunctions[B] = list
+  def foreach(f: Nothing => Unit): Unit = ()
+
+  def sort(compare:(Nothing, Nothing) => Int): MyListGenericwithAnonFunctions[Nothing] = EmptyListwithAnonFunctions
+  def zipWith[B,C](list: MyListGenericwithAnonFunctions[B], zip: (Nothing, B) => C): MyListGenericwithAnonFunctions[C] = {
+    if(!list.isEmpty) throw new RuntimeException("List do not have same length")
+    else EmptyListwithAnonFunctions
+  }
+
+  def fold[B](start:B)(operator: (B, Nothing) => B): B = start
 }
 
 
@@ -130,6 +149,56 @@ case class ConstructorwithAnonFunctions[+A](h: A, t: MyListGenericwithAnonFuncti
   def flatMap[B](transformer: A => MyListGenericwithAnonFunctions[B]): MyListGenericwithAnonFunctions[B] ={
     transformer(h) ++ t.flatMap(transformer)
   }
+
+
+  // HOFS continued
+
+  def foreach(f: A => Unit) = {
+    f(h)
+    t.foreach(f)
+  }
+
+  def sort(compare:(A,A) => Int): MyListGenericwithAnonFunctions[A] ={
+    def insert(x: A, sortedList: MyListGenericwithAnonFunctions[A]): MyListGenericwithAnonFunctions[A] = {
+     if(sortedList.isEmpty) new ConstructorwithAnonFunctions(x, EmptyListwithAnonFunctions)
+     else if(compare(x, sortedList.head) <= 0) new ConstructorwithAnonFunctions(x, sortedList)
+     else new ConstructorwithAnonFunctions(sortedList.head,insert(x, sortedList.tail))
+
+    }
+    val sortedTail = t.sort(compare)
+    insert(h, sortedTail)
+  }
+
+  def zipWith[B,C](list: MyListGenericwithAnonFunctions[B], zip:(A,B) => C): MyListGenericwithAnonFunctions[C] = {
+    if(list.isEmpty) throw new RuntimeException("List do not have same length")
+    else new ConstructorwithAnonFunctions(zip(h, list.head), t.zipWith(list.tail, zip))
+  }
+
+
+
+  /*
+  How FOLD works
+
+  [1,2,3].fold(0)(+) =
+  // Now 1 is head so  newStart = 0 + 1 = 1 then apply fold on [2,3]
+
+  [2,3].fold(1)(+) =
+
+  // Now 2 is head so newStart = 1 + 2 = 3 then apply fold on [3]
+
+  [3].fold(3)(+) =
+  // This will give newStart = 3 + 3 = 6 then apply fold on Empty
+
+  [].fold(6)(+) =
+  6
+
+   */
+
+  def fold[B](start: B)(operator: (B,A) => B): B = {
+    val newStart = operator(start, h)
+    t.fold(newStart)(operator)
+  }
+
 
 }
 
@@ -205,7 +274,14 @@ object CheckListTestwithAnonFunctions extends App {
 
 
 
+  listOfInt.foreach(x => println(x))
 
+
+  println(listOfInt.sort((x,y) => y-x ))
+
+  println(anotherListOfInt.zipWith[String, String](listOfString, _ + "-" + _))
+
+  println(listOfInt.fold(0)(_ + _))
 }
 
 
